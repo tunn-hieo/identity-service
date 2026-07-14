@@ -8,6 +8,7 @@ import com.tunn.identity_service.entity.User;
 import com.tunn.identity_service.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,24 +19,29 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
     UserService userService;
     @PostMapping
-    ApiResponse<User> createUser(@RequestBody @Valid UserCreationRequest request){
-        ApiResponse<User> apiResponse = new ApiResponse<>();
-
-        apiResponse.setResult(userService.createUser(request));
+    ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request){
+        ApiResponse<UserResponse> apiResponse = ApiResponse.<UserResponse>builder()
+                .result(userService.createUser(request))
+                .build();
 
         return apiResponse;
     }
     @GetMapping
-    List<User> getUsers(){
-        return userService.getUsers();
+    ApiResponse<List<User>> getUsers(){
+        return ApiResponse.<List<User>>builder()
+                .result(userService.getUsers())
+                .build();
     }
     @GetMapping("/{userId}")
-    UserResponse getUser(@PathVariable("userId") String id){
-        return userService.getUser(id);
+    ApiResponse<UserResponse> getUser(@PathVariable("userId") String id){
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.getUser(id))
+                .build();
     }
     @PutMapping("/{userId}")
     UserResponse updateUser(@PathVariable("userId") String id, @RequestBody UserUpdateRequest request){
