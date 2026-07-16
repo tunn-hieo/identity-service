@@ -1,8 +1,11 @@
 package com.tunn.identity_service.controller;
 
+import com.nimbusds.jose.JOSEException;
 import com.tunn.identity_service.dto.request.ApiResponse;
 import com.tunn.identity_service.dto.request.AuthenticationRequest;
+import com.tunn.identity_service.dto.request.IntrospectRequest;
 import com.tunn.identity_service.dto.response.AuthenticationResponse;
+import com.tunn.identity_service.dto.response.IntrospectResponse;
 import com.tunn.identity_service.service.AuthenticationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.ParseException;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -19,12 +24,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
     AuthenticationService authenticationService;
 
-    @PostMapping("/log-in")
+    @PostMapping("/token")
         ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
             return ApiResponse.<AuthenticationResponse>builder()
-                    .result(AuthenticationResponse.builder()
-                            .authenticated(authenticationService.authenticate(request))
-                            .build())
+                    .result(authenticationService.authenticate(request))
                     .build();
         }
+
+    @PostMapping("/introspect")
+    ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
+        var result = authenticationService.introspect(request);
+        return ApiResponse.<IntrospectResponse>builder()
+                .result(result)
+                .build();
+    }
 }
